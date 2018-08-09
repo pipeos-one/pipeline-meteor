@@ -1,0 +1,20 @@
+<template name="insert">
+    {{#autoForm schema=CustomSchema id="insertContractSource" resetOnSuccess="false"}}
+        <fieldset>
+        {{> afQuickField name='eth_address'}}
+        {{> afQuickField name='chain_id'}}
+        {{> afQuickField name='bytecode_hash'}}
+        {{> afQuickField name='bytecode_runtime_hash'}}
+        <button type="button" class="btn btn-primary" id="insertTag"> + tag</button>
+        {{> afQuickField name='tags' options=tagOptions type='select-multiple'}}
+        {{> afQuickField name='name'}}
+        {{> afQuickField name='keccak256'}}
+        {{> afQuickField name='path'}}
+        {{> afQuickField name='abi' rows=5 cols=100}}
+        {{> afQuickField name='devdoc' rows=5 cols=100}}
+        {{> afQuickField name='userdoc' rows=5 cols=100}}
+        {{> afQuickField name='source' rows=5 cols=100}}
+        </fieldset>
+        <button type="submit" class="btn btn-primary {{buttonVisibility}}">Insert</button>
+    {{/autoForm}}
+</template>

@@ -1,0 +1,23 @@
+/* swiper */
+
+html, body, #__blaze-root, .swiper-container {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+    }
+.swiper-container {
+    width: 100%;
+    height: 500;
+}
+.swiper-slide {
+    width: 80%;
+}
+.swiper-slide:nth-child(2n), .swiper-slide:nth-child(4n) {
+    width: 20%;
+    overflow-y: scroll;
+}
+
+.grey {
+    background-color: #ccc;
+}

@@ -1,0 +1,10 @@
+<template name="insertTag">
+    {{#autoForm collection=Tag id="insertTag" type="method" meteormethod="tag.insert"}}
+    <fieldset>
+    <legend>Add a tag</legend>
+    {{> afQuickField name='name'}}
+    {{> afQuickField name='description' rows=5 cols=50}}
+    </fieldset>
+    <button type="submit" class="btn btn-primary">Insert</button>
+    {{/autoForm}}
+</template>

@@ -1,0 +1,33 @@
+{
+  "name": "pipeline",
+  "private": true,
+  "scripts": {
+    "start": "meteor run",
+    "test": "meteor test --once --driver-package meteortesting:mocha",
+    "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
+    "visualize": "meteor --production --extra-packages bundle-visualizer",
+    "desktop": "meteor-desktop"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0-beta.51",
+    "backbone": "^1.3.3",
+    "bootstrap-treeview": "^1.2.0",
+    "dagre": "^0.8.2",
+    "graphlib": "^2.1.5",
+    "jquery": "<3.0.0",
+    "meteor-node-stubs": "^0.4.1",
+    "simpl-schema": "^1.5.3",
+    "swiper": "^4.3.5",
+    "underscore": "^1.9.1"
+  },
+  "meteor": {
+    "mainModule": {
+      "client": "client/startup.js",
+      "server": "server/main.js"
+    },
+    "testModule": "tests/main.js"
+  },
+  "devDependencies": {
+    "meteor-desktop": "^1.6.0"
+  }
+}

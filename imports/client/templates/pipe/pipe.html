@@ -1,0 +1,36 @@
+<template name="pipe1">
+    Pipe {{contract_id}}
+</template>
+
+
+<template name="pipe">
+    {{> pipetree}}
+    {{> pipecanvas}}
+    <!--<div class="container-fluid">
+
+        <button onclick="fromJson();">&lt;&gt;</button>
+            <input type="text" id="contract" value="Contract" /> <button onclick="toSolidity();">&lt;&gt;</button>
+            <select id="sel_function">
+                <option value="function1">function1</option>
+            </select>
+            <input type="text" id="function" value="function1" /> <button >&lt;&gt;</button>
+
+        <button onclick="tree_d()">ABIs</button>
+    </div>
+    -->
+</template>
+
+<template name="source_editor">
+    <div id="source_editor" style="display: none;">
+        <div class="overlay"></div>
+        <div id="source_container">
+            <div id="tool_source_back" class="toolbar_button">
+                <button id="done" >Done</button> <button id="detach" >Detach</button>
+
+                <form id="source_txt">
+                    <textarea id="source_textarea" onchange="s_change()" spellcheck="false" data-gramm="true" style="position: relative;width: 100%;height: 100%;padding: 5px;"></textarea>
+                </form>
+            </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,15 @@
+/* Important part */
+.modal-dialog{
+    overflow-y: initial !important
+}
+.modal-body{
+    overflow-y: auto;
+    /* overflow-y: scroll; */
+    max-height: calc(95% - 50px);
+}
+
+
+.modal-dialog,
+.modal-content {
+    height: 95%;
+}
