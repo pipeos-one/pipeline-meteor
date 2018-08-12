@@ -8,6 +8,9 @@ Template.generalModal.helpers({
     },
     data: function() {
         return Template.instance().data
+    },
+    showSave: function() {
+        return !Template.instance().data.hiddenSave;
     }
 })
 

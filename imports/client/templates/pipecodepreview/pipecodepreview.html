@@ -1,3 +1,22 @@
 <template name="pipecodepreview">
-    <textarea id="pipecodepreview" class="form-control" rows="50"></textarea>
+    <div class="fit">
+        <ul id="pipenav" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#solidity" aria-controls="solidity" role="tab" data-toggle="tab">Solidity</a></li>
+            <li role="presentation"><a href="#pipegram" aria-controls="pipegram" role="tab" data-toggle="tab">Pipegram</a></li>
+            <li role="presentation"><a href="#javascript" aria-controls="javascript" role="tab" data-toggle="tab">JavaScript</a></li>
+            <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+        </ul>
+
+        <div class="tab-content fitnav">
+            <div role="tabpanel" class="tab-pane active fit" id="solidity">
+                <textarea id="pipesoliditycode" class="fit grey"></textarea>
+            </div>
+            <div role="tabpanel" class="tab-pane fit" id="pipegram">
+                <textarea id="pipegramcode" class="fit grey"></textarea>
+            </div>
+            <div role="tabpanel" class="tab-pane fit" id="javascript">javascript</div>
+            <div role="tabpanel" class="tab-pane fit" id="settings">settings</div>
+        </div>
+
+    </div>
 </template>

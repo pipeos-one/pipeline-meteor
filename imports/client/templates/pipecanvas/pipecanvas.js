@@ -6,9 +6,25 @@ import './pipecanvas.html';
 import './pipecanvas.css';
 
 Template.pipecanvas.onCreated(function() {
-    this.functionAbi = this.data.functionAbi;
-    this.pipecode = this.data.pipecode;
-})
+    let self = this;
+    self.functionAbi = self.data.functionAbi;
+    self.pipecode = self.data.pipecode;
+    self.pipegram = self.data.pipegram;
+
+    self.update = function() {
+        let pipegram = JSON.stringify(self.graph.toJSON());
+        let pipecode = toSolidity(self.graph);
+        self.pipegram.set(pipegram);
+        self.pipecode.set(pipecode);
+    }
+});
+
+Template.pipecanvas.events({
+    'click #pipecopy': function() {
+        $('.tab-pane.active textarea')[0].select();
+        document.execCommand("copy");
+    }
+});
 
 Template.pipecanvas.onRendered(function() {
     let self = this
@@ -82,15 +98,12 @@ Template.pipecanvas.onRendered(function() {
     self.paper.on('cell:pointerdblclick',
         function(cellView, evt, x, y) {
             cellView.model.remove();
-            let code = toSolidity(self.graph);
-            self.pipecode.set(code);
+            self.update();
         }
     );
 
     self.graph.on('change', function() {
-        console.log('change graph')
-        let code = toSolidity(self.graph);
-        self.pipecode.set(code);
+        self.update();
     });
 
     Tracker.autorun(function() {
@@ -171,7 +184,7 @@ function toSolidity(graph){
     sol = sol + solidity.function_p0;
     sol = sol + 'PipedFunction';
     sol = sol + solidity.function_pp0;
-    console.log(inputs)
+    // console.log(inputs)
     inputs.forEach((inP, ndx) => {
         if (inP.split(".")[1] == "uint256: wei_value") return;
         if (inP.split(".")[1] == "address: tx_sender") return;
@@ -212,7 +225,7 @@ function toSolidity(graph){
 }
 
 function forFunc(func){
-    console.log(func)
+    // console.log(func)
         let outs = [], ins = [], touts = [], tins = [], tins2=[], ttins=[]
         func.outPorts.forEach((out, dx)=>{
             outs.push(getIO(func.id, out, 1))
@@ -238,7 +251,7 @@ function forFunc(func){
             }
 
         }
-        console.log(ins)
+        // console.log(ins)
         sol = sol + "\nsignature42 = bytes4(keccak256(\""+func.attrs[".label"].text.split(".\n")[1]+"("+tins.join(",")+")\"));\ninput42 = abi.encodeWithSelector(signature42, "+tins2.join(",")+");\n"
         if (touts.length > 0){
             sol = sol + "answer42 = ";
@@ -268,7 +281,7 @@ var gr, sol, run, cells, funcs=[];
 
 function getNext(edge, port){
     let next = {}
-    console.log(cells)
+    // console.log(cells)
     for (let i in cells){
         if (cells[i].type == "link") {
             if (edge == cells[i].source.id){
@@ -320,7 +333,7 @@ function getIO2(node, port, io){
 
     for (let ndx in run.inPorts){
         if (run.inPorts[ndx].split(".")[1] == port) {
-            console.log("hi hi ",port.split(": ")[1])
+            // console.log("hi hi ",port.split(": ")[1])
             return port.split(": ")[1]
         }
     }
@@ -375,7 +388,7 @@ function process(proc){
     })
     //console.log(proc)
     if (proc.ready.length == 0) return;
-    console.log(proc.ready)
+    // console.log(proc.ready)
 
     proc.ready.forEach((cell, index) => {
 

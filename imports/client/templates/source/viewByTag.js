@@ -17,8 +17,25 @@ Template.viewByTag.helpers({
         }
         return result;
     },
-    devdoc: function() {
-        return JSON.parse(this.devdoc);
+    popoverContent: function() {
+        devdoc = JSON.parse(this.devdoc);
+        let str = '';
+        if (devdoc.details) {
+            str += devdoc.details + '; ';
+        }
+        if (devdoc.author) {
+            str += devdoc.author;
+        }
+        return str;
+    },
+    modaldata: function() {
+        return {
+            id: 'abi_' + this._id,
+            template: 'abiui',
+            hiddenSave: true,
+            abi: JSON.parse(this.abi),
+            title: this.name
+        }
     }
 });
 
@@ -32,5 +49,20 @@ Template.viewByTag.events({
             contracts.push(this._id);
         }
         Template.instance().data.contracts.set(contracts);
+    },
+    'click label': function(event) {
+        $('[data-toggle="popover"]').popover()
+        $(event.currentTarget).popover('toggle');
+    },
+    'mouseover label': function(event) {
+        $('[data-toggle="popover"]').popover()
+        $(event.currentTarget).popover('show');
+    },
+    'mouseout label': function(event) {
+        $('[data-toggle="popover"]').popover()
+        $(event.currentTarget).popover('hide');
+    },
+    'click .abi': function(event) {
+        $('#generalModal_abi_' + this._id).modal({backdrop: false});
     }
 });

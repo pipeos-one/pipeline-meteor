@@ -9,6 +9,7 @@ html, body, #__blaze-root, .swiper-container {
 .swiper-container {
     width: 100%;
     height: 500;
+    padding-top: 1px;
 }
 .swiper-slide {
     width: 80%;
@@ -16,6 +17,9 @@ html, body, #__blaze-root, .swiper-container {
 .swiper-slide:nth-child(2n), .swiper-slide:nth-child(4n) {
     width: 20%;
     overflow-y: scroll;
+}
+.swiper-scrollbar {
+    display: none;
 }
 
 .grey {

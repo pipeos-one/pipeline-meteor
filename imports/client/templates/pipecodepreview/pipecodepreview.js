@@ -1,7 +1,9 @@
 import './pipecodepreview.html';
+import './pipecodepreview.css';
 
 Template.pipecodepreview.onCreated(function() {
     this.pipecode = this.data.pipecode;
+    this.pipegram = this.data.pipegram;
 });
 
 Template.pipecodepreview.onRendered(function() {
@@ -9,6 +11,13 @@ Template.pipecodepreview.onRendered(function() {
 
     Tracker.autorun(function() {
         let code = self.pipecode.get();
-        $('#pipecodepreview').val(code);
+        $('#pipesoliditycode').val(code);
     });
+
+    Tracker.autorun(function() {
+        let code = self.pipegram.get();
+        $('#pipegramcode').val(code);
+    })
+
+    $('#pipenav').tab();
 });

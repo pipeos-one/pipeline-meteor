@@ -24,26 +24,18 @@ Template.abiuiWrap.helpers({
     data: function() {
         let abi = Template.instance().abi.get()
         return {
+            id: FlowRouter.getParam('_id'),
             abi: abi
         }
     }
 })
 
 Template.abiui.onRendered(function() {
+    let domid = 'abiui_' + Template.instance().data.id
     let contract_abi = Template.instance().data.abi
     if (contract_abi) {
-        this.abiui = new AbiUI({address: '0xfsdfsd'}, contract_abi, 'abiui');
+        this.abiui = new AbiUI({address: '0xfsdfsd'}, contract_abi, domid);
         this.abiui.show();
-    }
-});
-/*
-Template.abiui.helpers({
-    AbiSchema: function() {
-        return Pipeline.schemas.AbiFunction
-    },
-    abi: function() {
-        id = FlowRouter.getParam('_id');
-        return Pipeline.collections.ContractSource.findOne({_id: id});
     }
 });
 
@@ -60,4 +52,3 @@ AutoForm.hooks({
     }
   }
 });
-*/

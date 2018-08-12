@@ -1,0 +1,12 @@
+.fit {
+    height: 100%;
+    width: 100%;
+}
+
+.fitnav {
+    height: calc(100% - 85px);
+}
+
+#pipenav {
+    background-color: #FFF;
+}

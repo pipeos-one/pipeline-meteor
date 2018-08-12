@@ -2,12 +2,11 @@
     {{#each contracts}}
         <div style="padding-top: 10px;">
             <div class="btn-group" role="group" aria-label="...">
-                <button class='btn btn-default deploy' data-id='{{_id}}'>deploy</button>
+                <button class='btn btn-default abi' data-id='{{_id}}'>abi</button>
                 <button class='btn btn-default pipe' data-id='{{_id}}'>pipe</button>
             </div>
-            <!-- {{devdoc.author}}.{{devdoc.dev}} {{devdoc.title}} -->
-            <label>{{name}}</label>
-
+            <label data-toggle="popover" title="{{name}}" data-content="{{popoverContent}}">{{name}}</label>
+            {{> generalModal modaldata}}
         </div>
     {{/each}}
 </template>
