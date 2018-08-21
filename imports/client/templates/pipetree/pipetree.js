@@ -11,14 +11,9 @@ Template.pipetree.onRendered(function() {
     self.functionAbi = this.data.functionAbi;
     self.contracts = this.data.contracts;
 
-    Tracker.autorun(function() {
-        let contract_ids = self.contracts.get();
-        let contracts = Pipeline.collections.ContractSource.find({_id: {$in: contract_ids}}).fetch().map(function(contract) {
-            contract.userdoc = JSON.parse(contract.userdoc);
-            contract.devdoc = JSON.parse(contract.devdoc);
-            return contract;
-        })
-        //$('#pipetree').treeview('remove');
+    self.autorun(function() {
+        let contracts = self.contracts.get();
+
         $('#pipetree').treeview({
             data: getTree(contracts),
             //expandIcon: 'glyphicon glyphicon-chevron-rigth',
@@ -120,7 +115,7 @@ function getTree(contracts) {
     return contracts.map(function(contract) {
         return {
             text: contract.name,
-            nodes: getTreeLeaves(contract, JSON.parse(contract.abi))
+            nodes: getTreeLeaves(contract, contract.abi)
         }
     });
 }

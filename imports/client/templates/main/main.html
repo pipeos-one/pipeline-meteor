@@ -11,9 +11,13 @@
                 {{> generalModal modaldata}}
                 {{> viewTags data}}
                 {{> viewByTag data}}
+                <div id="pipetreedata"><button type="button" class="btn btn-default btn-lg">
+                    <span class="glyphicon glyphicon-copy" aria-hidden="true"></span>
+                </button></div>
+                {{> generalModal treedata}}
             </div>
             <div class="swiper-slide no-swipe grey">
-                {{> pipetree data}}
+                {{> pipetree pipetreedata}}
             </div>
             <div class="swiper-slide no-swipe">
                 {{> pipecanvas data}}
@@ -34,4 +38,8 @@
     <div class="swiper-scrollbar"></div>
 
     </div>
+</template>
+
+<template name="abiarray">
+    <textarea id="abiarray" class="fit">{{data}}</textarea>
 </template>

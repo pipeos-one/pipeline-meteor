@@ -16,11 +16,25 @@ import './main.css';
 
 
 Template.main.onCreated(function helloOnCreated() {
-  this.tag = new ReactiveVar();
-  this.contracts = new ReactiveVar([]);
-  this.functionAbi = new ReactiveVar();
-  this.pipecode = new ReactiveVar();
-  this.pipegram = new ReactiveVar();
+    let self = this;
+    self.tag = new ReactiveVar();
+    self.contracts = new ReactiveVar([]);
+    self.functionAbi = new ReactiveVar();
+    self.pipecode = new ReactiveVar();
+    self.pipegram = new ReactiveVar();
+    self.pipeContracts = new ReactiveVar();
+
+    self.autorun(function() {
+        let contract_ids = Template.instance().contracts.get();
+        let contracts = Pipeline.collections.ContractSource.find({_id: {$in: contract_ids}}).fetch().map(function(contract) {
+            contract.abi = JSON.parse(contract.abi);
+            contract.userdoc = JSON.parse(contract.userdoc);
+            contract.devdoc = JSON.parse(contract.devdoc);
+            return contract;
+        });
+        console.log('contracts', contracts)
+        self.pipeContracts.set(contracts);
+    });
 });
 
 Template.main.onRendered(function() {
@@ -51,6 +65,12 @@ Template.main.helpers({
             pipegram: Template.instance().pipegram,
         };
     },
+    pipetreedata: function() {
+        return {
+            contracts: Template.instance().pipeContracts,
+            functionAbi: Template.instance().functionAbi,
+        }
+    },
     modaldata: function() {
         return {
             template: 'insert',
@@ -61,11 +81,44 @@ Template.main.helpers({
             },
             id: 'add_contract'
         }
+    },
+    treedata: function() {
+        let template = Template.instance();
+        let contracts = template.pipeContracts.get();
+        if (!contracts) return;
+        console.log('contracts', contracts)
+        contracts = contracts.map(function(contract) {
+            return {
+                abi: contract.abi,
+                devdoc: contract.devdoc,
+                userdoc: contract.userdoc,
+                name: contract.name,
+            };
+        });
+        return {
+            template: 'abiarray',
+            buttonHidden: true,
+            // hiddenSave: true,
+            id: 'showabis',
+            data: JSON.stringify(contracts),
+            saveAction: function() {
+                let new_abis = $('#abiarray').val();
+                // TODO: check content;
+                template.pipeContracts.set(JSON.parse(new_abis));
+            },
+        }
     }
 });
 
 Template.main.events({
     'click .addContract': function(event) {
         $('#generalModal_add_contract').modal({backdrop: false});
+    },
+    'click #pipetreedata': function(event) {
+        $('#generalModal_showabis').modal({backdrop: false});
     }
-})
+});
+
+Template.abiarray.onRendered(function() {
+    console.log(this.data)
+});
