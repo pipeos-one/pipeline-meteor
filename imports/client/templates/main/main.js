@@ -22,6 +22,7 @@ Template.main.onCreated(function helloOnCreated() {
     self.functionAbi = new ReactiveVar();
     self.pipecode = new ReactiveVar();
     self.pipegram = new ReactiveVar();
+    self.pipejscode = new ReactiveVar();
     self.pipeContracts = new ReactiveVar();
 
     self.autorun(function() {
@@ -63,6 +64,7 @@ Template.main.helpers({
             functionAbi: Template.instance().functionAbi,
             pipecode: Template.instance().pipecode,
             pipegram: Template.instance().pipegram,
+            pipejscode: Template.instance().pipejscode,
         };
     },
     pipetreedata: function() {

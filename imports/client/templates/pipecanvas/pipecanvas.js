@@ -4,18 +4,22 @@ import solidity from '../pipecodepreview/codepatterns.js';
 
 import './pipecanvas.html';
 import './pipecanvas.css';
+import toJavascript from './toJs.js';
 
 Template.pipecanvas.onCreated(function() {
     let self = this;
     self.functionAbi = self.data.functionAbi;
     self.pipecode = self.data.pipecode;
     self.pipegram = self.data.pipegram;
+    self.pipejscode = self.data.pipejscode;
 
     self.update = function() {
         let pipegram = JSON.stringify(self.graph.toJSON());
         let pipecode = toSolidity(self.graph);
+        let pipejscode = toJavascript(self.graph, inputs);
         self.pipegram.set(pipegram);
         self.pipecode.set(pipecode);
+        self.pipejscode.set(pipejscode);
     }
 });
 
@@ -118,19 +122,27 @@ Template.pipecanvas.onRendered(function() {
 var gr, sol, run, cells, funcs=[];
 
 function addNode(graph, nodes, contract_function) {
+    // console.log('addNode', contract_function)
     abi = contract_function.abi
     pname = contract_function.contract.name
     nodetext = abi.name
-    ins = abi.inputs.map(function(input) {
-        return `${input.type}: ${input.name}`
-    })
-    outs = abi.outputs.map(function(output) {
-        return `${output.type}: ${output.name}`
-    })
-
-    let color = "#ddd";
-    if (!abi.constant) {
-        color = "#edd";
+    let color = "#ddd", ins = [], outs = [];
+    if (abi.type == 'event') {
+        outs = abi.inputs.map(function(input) {
+            return `${input.type}: ${input.name}`
+        })
+        color = '#C9DEBB';
+    }
+    else {
+        ins = abi.inputs.map(function(input) {
+            return `${input.type}: ${input.name}`
+        })
+        outs = abi.outputs.map(function(output) {
+            return `${output.type}: ${output.name}`
+        })
+        if (!abi.constant) {
+            color = "#edd";
+        }
     }
 
     nodes.push(
@@ -145,12 +157,21 @@ function addNode(graph, nodes, contract_function) {
             },
             inPorts: ins,
             outPorts: outs,
-            attrs: {'.label': { text: pname+".\n"+nodetext, 'ref-x': .5, 'ref-y': 0.1 },
+            attrs: {
+                '.label': { text: pname+".\n"+nodetext, 'ref-x': .5, 'ref-y': 0.1 },
                 rect: { rx:10, ry:10,
                     fill: color,
                     stroke: '#222',
                     'stroke-width': 2
+                },
+                pipeline: {
+                    contract: {
+                        address: contract_function.contract.address,
+                        name: contract_function.contract.name,
+                    },
+                    abi: contract_function.abi,
                 }
+
             }
         }).addTo(graph)
     )
@@ -348,7 +369,7 @@ function preRun(graph) {
     funcs = []
     cells = graph.toJSON().cells;
     for (let i in cells){
-        if (cells[i].type == "devs.Atomic") {
+        if (cells[i].type == "devs.Atomic" && cells[i].attrs.pipeline.abi.type != 'event') {
             //run.inPorts.push()
             cells[i].inPorts.forEach((inP, index) => {
                 run.inPorts.push(cells[i].id+"."+inP)

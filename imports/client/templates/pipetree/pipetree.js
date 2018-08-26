@@ -133,6 +133,13 @@ function getTreeLeaves(contract, abi) {
         } else if (item.type == 'constructor') {
             leaf = {text: 'constructor'};
         }
+        else if (item.type == 'event') {
+            leaf = {
+                text: item.name,
+                backColor: '#C9DEBB',
+                contract: contract,
+            }
+        }
         if (leaf) {
             leaf.abi = item;
             if (contract.devdoc.methods) {
@@ -141,7 +148,9 @@ function getTreeLeaves(contract, abi) {
             if (contract.userdoc.methods) {
                 leaf.userdoc = contract.userdoc.methods[funcIdentifier]
             }
-            leaf.backColor = item.constant ? null : "#E9DEDE";
+            if (!leaf.backColor) {
+                leaf.backColor = item.constant ? null : "#E9DEDE";
+            }
             // leaf.icon = item.constant ? 'glyphicon glyphicon-info-sign' : 'glyphicon glyphicon-export';
             leaves.push(leaf);
         }
