@@ -1,6 +1,25 @@
 <template name="pipecanvas">
+    <div id="addGraph"><button type="button" class="btn btn-default btn-lg">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    </button></div>
     <div id="pipecopy"><button type="button" class="btn btn-default btn-lg">
         <span class="glyphicon glyphicon-copy" aria-hidden="true"></span>
     </button></div>
-    <div id="paper"></div>
+
+    <div class="fit">
+        <ul id="pipecanvasnav" class="nav nav-tabs" role="tablist">
+            {{#each tab}}
+                <li role="presentation"><a href="#{{name}}" aria-controls="{{name}}" role="tab" data-toggle="tab">{{name}}</a></li>
+            {{/each}}
+        </ul>
+
+        <div class="tab-content fitnav">
+            {{#each tab}}
+                <div role="tabpanel" class="tab-pane fit" id="{{name}}">
+                    <div id="paper_{{name}}" class="paper" style="width: 100%;height: 100%;"></div>
+                </div>
+            {{/each}}
+        </div>
+
+    </div>
 </template>
