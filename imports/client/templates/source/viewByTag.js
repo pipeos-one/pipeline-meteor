@@ -33,11 +33,23 @@ Template.viewByTag.helpers({
         return str;
     },
     modaldata: function() {
+        let contract_deployed, contract;
+        console.log(this)
+        contract_deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: this._id});
+        if (contract_deployed && web3.isConnected()) {
+            contract = web3.eth.contract(
+                JSON.parse(this.abi)
+            ).at(contract_deployed.eth_address);
+        }
+        else {
+            contract = {abi: JSON.parse(this.abi)};
+        }
+
         return {
             id: 'abi_' + this._id,
             template: 'abiui',
             hiddenSave: true,
-            contract: {abi: JSON.parse(this.abi)},
+            contract,
             title: this.name
         }
     }

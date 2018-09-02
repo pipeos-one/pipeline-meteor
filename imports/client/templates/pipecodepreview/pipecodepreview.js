@@ -70,42 +70,44 @@ Template.pipecodepreview.events({
                     data: compiled.bytecode,
                     gas: gasEstimate,
                 }, function(err, myContract){
-                        if(!err) {
-                            if(!myContract.address) {
-                                console.log(myContract.transactionHash)
-                                inst.pipedeployed.set(null);
-                            } else {
-                                console.log('myContract', myContract)
-                                inst.pipedeployed.set(myContract);
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    if (!myContract.address) {
+                        console.log(myContract.transactionHash)
+                        inst.pipedeployed.set(null);
+                    } else {
+                        console.log('myContract', myContract)
+                        inst.pipedeployed.set(myContract);
 
-                                let source = {
-                                    name: 'PipedContract_' + new Date().getTime(),
-                                    abi: compiled.interface,
-                                    devdoc: JSON.stringify(metadata.output.devdoc),
-                                    userdoc: JSON.stringify(metadata.output.userdoc),
-                                    keccak256: '',
-                                    path: '',
-                                    source: code,
-                                    tags: [],
-                                    timestamp: new Date(),
-                                }
-                                let deployed = {
-                                    eth_address: myContract.address,
-                                    chain_id: web3.version.network,
-                                    bytecode_hash: compiled.bytecode,
-                                    bytecode_runtime_hash: compiled.runtimeBytecode,
-                                    timestamp: new Date(),
-                                }
-                                Meteor.call('contract_source.insert', source, function(error, id) {
-                                    console.log('contract_source', error, id);
-                                    if (error) return;
-                                    deployed.contract_source_id = id;
-                                    Meteor.call('deployed_contract.insert', deployed, function(error, result) {
-                                        console.log('deployed_contract', error, result);
-                                    });
-                                });
-                            }
+                        let source = {
+                            name: 'PipedContract_' + new Date().getTime(),
+                            abi: compiled.interface,
+                            devdoc: JSON.stringify(metadata.output.devdoc),
+                            userdoc: JSON.stringify(metadata.output.userdoc),
+                            keccak256: '',
+                            path: '',
+                            source: code,
+                            tags: [],
+                            timestamp: new Date(),
                         }
+                        let deployed = {
+                            eth_address: myContract.address,
+                            chain_id: web3.version.network,
+                            bytecode_hash: compiled.bytecode,
+                            bytecode_runtime_hash: compiled.runtimeBytecode,
+                            timestamp: new Date(),
+                        }
+                        Meteor.call('contract_source.insert', source, function(error, id) {
+                            console.log('contract_source', error, id);
+                            if (error) return;
+                            deployed.contract_source_id = id;
+                            Meteor.call('deployed_contract.insert', deployed, function(error, result) {
+                                console.log('deployed_contract', error, result);
+                            });
+                        });
+                    }
                 });
             });
         });
