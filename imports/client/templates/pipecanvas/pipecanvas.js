@@ -198,7 +198,9 @@ function addNode(graph, nodes, contract_function) {
         outs = abi.outputs.map(function(output) {
             return `${output.type}: ${output.name}`
         })
-        if (!abi.constant) {
+        if (abi.payable) {
+            color = "#CDE0F2";
+        } else if (!abi.constant) {
             color = "#edd";
         }
     }

@@ -148,6 +148,9 @@ function getTreeLeaves(contract, abi) {
             if (contract.userdoc.methods) {
                 leaf.userdoc = contract.userdoc.methods[funcIdentifier]
             }
+            if (item.payable) {
+                leaf.backColor = "#CDE0F2";
+            }
             if (!leaf.backColor) {
                 leaf.backColor = item.constant ? null : "#E9DEDE";
             }

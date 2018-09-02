@@ -131,51 +131,51 @@ class GraphToSolidity {
 
     forFunc(func){
         // console.log(func)
-            let outs = [], ins = [], touts = [], tins = [], tins2=[], ttins=[]
-            func.outPorts.forEach((out, dx)=>{
-                outs.push(this.getIO(func.id, out, 1))
-                touts.push(out)
-            })
-            func.inPorts.forEach((inn, dx)=>{
-                let inIt = this.getIO(func.id, inn, 0);
-                if (!inIt) {
-                    ins.push(inn.split(" ")[1])
-                } else {
-                    ins.push(inIt)
-                }
-                tins.push(inn.split(": ")[0])
-                tins2.push(this.getIO2(func.id, inn, 0))
-                ttins.push(inn.split(": ")[1])
+        let outs = [], ins = [], touts = [], tins = [], tins2=[], ttins=[]
+        func.outPorts.forEach((out, dx)=>{
+            outs.push(this.getIO(func.id, out, 1))
+            touts.push(out)
+        })
+        func.inPorts.forEach((inn, dx)=>{
+            let inIt = this.getIO(func.id, inn, 0);
+            if (!inIt) {
+                ins.push(inn.split(" ")[1])
+            } else {
+                ins.push(inIt)
+            }
+            tins.push(inn.split(": ")[0])
+            tins2.push(this.getIO2(func.id, inn, 0))
+            ttins.push(inn.split(": ")[1])
 
-            })
-            if (outs.length >0 ) {
-                if (!outs[0]) {
-                    //sol = sol + "("+this.run.outPorts.join(", ").replace(": "," ")+") = ";
-                } else {
-                    //sol = sol + "("+outs.join(", ").replace(": "," ")+") = ";
-                }
+        })
+        if (outs.length >0 ) {
+            if (!outs[0]) {
+                //sol = sol + "("+this.run.outPorts.join(", ").replace(": "," ")+") = ";
+            } else {
+                //sol = sol + "("+outs.join(", ").replace(": "," ")+") = ";
+            }
 
-            }
-            // console.log(ins)
-            this.solidity_code += "\n    signature42 = bytes4(keccak256(\""+func.attrs[".label"].text.split(".\n")[1]+"("+tins.join(",")+")\"));\n    input42 = abi.encodeWithSelector(signature42, "+tins2.join(",")+");\n"
-            if (touts.length > 0){
-                this.solidity_code += "    answer42 = ";
-            }
-            this.solidity_code += "    seth_proxy.proxyCallInternal";
-            if (func.attrs["rect"].fill == "#edd") {
-                this.solidity_code += ".value(msg.value)";
-            }
-            this.solidity_code += "("+func.attrs[".label"].text.split(".\n")[0]+"_address , input42, 32);\n"
+        }
+        // console.log(ins)
+        this.solidity_code += "\n    signature42 = bytes4(keccak256(\""+func.attrs[".label"].text.split(".\n")[1]+"("+tins.join(",")+")\"));\n    input42 = abi.encodeWithSelector(signature42, "+tins2.join(",")+");\n"
+        if (touts.length > 0){
+            this.solidity_code += "    answer42 = ";
+        }
+        this.solidity_code += "    seth_proxy.proxyCallInternal";
+        if (func.attrs.pipeline.abi.payable) {
+            this.solidity_code += ".value(msg.value)";
+        }
+        this.solidity_code += "("+func.attrs[".label"].text.split(".\n")[0]+"_address , input42, 32);\n"
+        touts.forEach((o,n)=>{
+            this.solidity_code += '    ' + o.split(": ").join(" ")+";\n"
+        })
+        if (touts.length > 0){
+            this.solidity_code += "    assembly {\n"
             touts.forEach((o,n)=>{
-                this.solidity_code += '    ' + o.split(": ").join(" ")+";\n"
+                this.solidity_code += '    ' + o.split(" ")[1]+" := mload(add(answer42, 32))\n"
             })
-            if (touts.length > 0){
-                this.solidity_code += "    assembly {\n"
-                touts.forEach((o,n)=>{
-                    this.solidity_code += '    ' + o.split(" ")[1]+" := mload(add(answer42, 32))\n"
-                })
-                this.solidity_code += "    }\n"
-            }
+            this.solidity_code += "    }\n"
+        }
 
     }
 
