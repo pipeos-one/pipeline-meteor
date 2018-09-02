@@ -37,7 +37,7 @@ Template.viewByTag.helpers({
             id: 'abi_' + this._id,
             template: 'abiui',
             hiddenSave: true,
-            abi: JSON.parse(this.abi),
+            contract: {abi: JSON.parse(this.abi)},
             title: this.name
         }
     }

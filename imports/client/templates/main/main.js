@@ -109,6 +109,12 @@ Template.main.helpers({
                 template.pipeContracts.set(JSON.parse(new_abis));
             },
         }
+    abidata: function() {
+        let contract = Template.instance().pipedeployed.get();
+        return {
+            id: 'deployed_contract',
+            contract,
+        }
     }
 });
 

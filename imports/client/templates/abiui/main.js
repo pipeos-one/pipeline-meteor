@@ -4,37 +4,35 @@ import './main.html';
 import './main.css';
 
 
-Template.abiuiWrap.onCreated(function() {
-    let self = this;
-    self.abi = new ReactiveVar();
-
-    Tracker.autorun(function() {
-        id = FlowRouter.getParam('_id');
-        contract = Pipeline.collections.ContractSource.findOne({_id: id});
-        if (contract) {
-            self.abi.set(JSON.parse(contract.abi));
-        }
-    });
-});
-
 Template.abiuiWrap.helpers({
     abi: function() {
-        return Template.instance().abi.get()
+        return Pipeline.collections.ContractSource.findOne({_id: FlowRouter.getParam('_id')});
     },
     data: function() {
-        let abi = Template.instance().abi.get()
-        return {
-            id: FlowRouter.getParam('_id'),
-            abi: abi
+        let id, contract, contract_source, contract_deployed;
+
+        id = FlowRouter.getParam('_id');
+        contract_source = Pipeline.collections.ContractSource.findOne({_id: id});
+        contract_deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: id});
+        if (web3.isConnected()) {
+            contract = web3.eth.contract(
+                JSON.parse(contract_source.abi)
+            ).at(contract_deployed.eth_address);
         }
+        else {
+            contract = {
+                abi: JSON.parse(contract_source.abi)
+            }
+        }
+        return {id, contract}
     }
 })
 
 Template.abiui.onRendered(function() {
     let domid = 'abiui_' + Template.instance().data.id
-    let contract_abi = Template.instance().data.abi
-    if (contract_abi) {
-        this.abiui = new AbiUI({address: '0xfsdfsd'}, contract_abi, domid);
+    let contract_instance = Template.instance().data.contract
+    if (contract_instance) {
+        this.abiui = new AbiUI(contract_instance, domid);
         this.abiui.show();
     }
 });

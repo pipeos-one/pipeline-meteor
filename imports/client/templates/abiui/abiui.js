@@ -2,26 +2,38 @@ class ContractCommunication {
     getHtml() {
         let self = this;
         let html = '';
-        this.io_abi.map(function(val) {
-            html += '<div class="row ' + self.domclass + '">';
-            html += '<div class="col-sm-2" align="right"><label class="abi_label">' + val.name + '</label></div>'
-            html += '<div class="col-sm-4"><input type="text" value="" class="form-control sm" id="i' + self.html_id + '" placeholder="' + val.type + '"></div>'
-
-            // html += '<div class="col-sm-6"><div class="form-group">'
-            // html += '<label>' + val.name + '</label><input type="text" value="" class="form-control sm" id="i' + self.html_id + '" placeholder="' + val.type + '">'
-            // html += '</div></div>'
-
+        this.io_abi.map(function(val, i) {
+            html += `<div class="row ${self.domclass}">`;
+            html += `<div class="col-sm-2" align="right"><label class="abi_label">${val.name}</label></div>`
+            html += `<div class="col-sm-4"><input type="text" value="" class="form-control sm" id="${self.html_id}_${i}" placeholder="${val.type}"></div>`
             html += '</div>';
         }).join(',');
-
-        // html += '</div>';
 
         return html;
     }
 
     show() {
         this.parent_elem.append(this.getHtml());
-        this.elem = $(this.html_id);
+        this.elem = $('#' + this.html_id);
+    }
+
+    get() {
+        let self = this;
+        return this.io_abi.map(function(val, i) {
+            return $(`#${self.html_id}_${i}`).val();
+        });
+    }
+
+    set(value, index=0) {
+        let self = this;
+        if (value instanceof Array) {
+            value.forEach(function(val, i) {
+                self.set(val, i);
+            });
+        }
+        else {
+            $(`#${self.html_id}_${index}`).val(value);
+        }
     }
 
     clear() {
@@ -38,13 +50,9 @@ class ContractInput extends ContractCommunication {
         this.html_id = 'in_' + this.id
         this.domclass = 'inputs'
     }
-
-    get() {
-        return this.elem.val()
-    }
 }
 
-class ContractOutput extends ContractCommunication{
+class ContractOutput extends ContractCommunication {
     constructor(id, parent_elem, outputs_abi) {
         super()
         this.id = id
@@ -57,10 +65,6 @@ class ContractOutput extends ContractCommunication{
     getHtml() {
         return '<hr width="49%" class="abi">' + super.getHtml();
     }
-
-    set(value) {
-        this.elem.val(value)
-    }
 }
 
 class ContractFunction {
@@ -68,7 +72,8 @@ class ContractFunction {
         this.contract = contract
         this.func_abi = func_abi
         this.parent_elem = parent_elem
-        this.id = contract.address.slice(-8) + '_' + func_abi.name
+        this.id = contract.address ? contract.address.slice(-8) : new Date().getTime();
+        this.id += '_' + func_abi.name;
 
         this.init();
     }
@@ -87,6 +92,10 @@ class ContractFunction {
         this.parent_elem.append(this.getHtml());
         this.elem = $('#' + this.id);
         this.showButton();
+        // console.log(this.func_abi);
+        if (this.func_abi.payable) {
+            this.value_input = new ContractInput(this.id + '_value_input' , this.elem, [{name: 'WEI', type: '0'}]);
+        }
 
         if (this.func_abi.inputs.length > 0) {
             this.inputs = new ContractInput(this.id + '_input' , this.elem, this.func_abi.inputs);
@@ -99,24 +108,32 @@ class ContractFunction {
     showButton() {
         let self = this;
         let inputs = [];
+        let eth_value = 0;
+
         self.elem.append(this.getButtonHtml());
         $('#button_' + this.id).click(function(event) {
             if (self.inputs) {
                 inputs = self.inputs.get();
-                // console.log('inputs', inputs);
-                inputs = inputs.split(',');
             }
-            // console.log('inputs', inputs);
-            self.contract[self.func_abi.name](...inputs).then(function(value) {
-                // console.log('value', value);
-                if (self.outputs && value) {
-                    self.outputs.set(value);
+            if (self.value_input) {
+                eth_value = parseInt(self.value_input.get()[0] || 0);
+            }
+            self.contract[self.func_abi.name](
+                ...inputs,
+                {value: eth_value},
+                function(error, txn_hash) {
+                    console.log('value', txn_hash);
+                    if (self.outputs && txn_hash) {
+                        self.outputs.set(txn_hash);
+                    }
                 }
-            });
+            );
         });
     }
 
     show() {
+        if (this.value_input)
+            this.value_input.show();
         if (this.inputs)
             this.inputs.show();
         if (this.outputs)
@@ -129,9 +146,9 @@ class ContractFunction {
 }
 
 class AbiUI {
-    constructor(contract_instance, abi, domid) {
+    constructor(contract_instance, domid) {
         this.contract = contract_instance
-        this.abi = abi
+        this.abi = contract_instance.abi
         this.domid = 'abi_' + domid
         this.components = []
 
