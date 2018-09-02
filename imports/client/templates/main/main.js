@@ -24,6 +24,8 @@ Template.main.onCreated(function helloOnCreated() {
     self.pipegram = new ReactiveVar();
     self.pipejscode = new ReactiveVar();
     self.pipeContracts = new ReactiveVar();
+    self.pipeinputs = new ReactiveVar();
+    self.pipedeployed = new ReactiveVar();
 
     self.autorun(function() {
         let contract_ids = Template.instance().contracts.get();
@@ -65,6 +67,8 @@ Template.main.helpers({
             pipecode: Template.instance().pipecode,
             pipegram: Template.instance().pipegram,
             pipejscode: Template.instance().pipejscode,
+            pipeinputs: Template.instance().pipeinputs,
+            pipedeployed: Template.instance().pipedeployed,
         };
     },
     pipetreedata: function() {
@@ -109,6 +113,10 @@ Template.main.helpers({
                 template.pipeContracts.set(JSON.parse(new_abis));
             },
         }
+    },
+    contractDeployed: function() {
+        return Template.instance().pipedeployed.get();
+    },
     abidata: function() {
         let contract = Template.instance().pipedeployed.get();
         return {

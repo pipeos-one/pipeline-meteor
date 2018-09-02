@@ -15,6 +15,7 @@ Template.pipecanvas.onCreated(function() {
     self.pipecode = self.data.pipecode;
     self.pipegram = self.data.pipegram;
     self.pipejscode = self.data.pipejscode;
+    self.pipeinputs = self.data.pipeinputs;
     self.graph_index = new ReactiveVar(0);
     self.max_graph_index = new ReactiveVar(0);
 });
@@ -63,12 +64,16 @@ Template.pipecanvas.onRendered(function() {
         let graphs_to_sol = new GraphsToSolidity(self.graphs);
         let pipecode = graphs_to_sol.toSolidity();
         let pipejscode = '';
-        graphs_to_sol.graphs.map(function(graph) {
-            pipejscode += toJavascript(graph.graph, graph.inputs) + '\n';
+        let input_args = ['address _seth_proxy'].concat(graphs_to_sol.ffunc).map(function(arg) {
+            return arg.split(' ');
+        });
+        graphs_to_sol.graphs.map(function(graph, index) {
+            pipejscode += toJavascript(graph.graph, graph.inputs, index + 1) + '\n';
         });
         self.pipegram.set(pipegram);
         self.pipecode.set(pipecode);
         self.pipejscode.set(pipejscode);
+        self.pipeinputs.set(input_args);
     }
 
     joint.dia.ElementView.prototype.pointerdown = function(evt, x, y) {

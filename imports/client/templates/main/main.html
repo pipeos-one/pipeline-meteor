@@ -10,7 +10,9 @@
                 </button>
                 {{> generalModal modaldata}}
                 {{> viewTags data}}
-                {{> viewByTag data}}
+                <div class="scrolly">
+                    {{> viewByTag data}}
+                </div>
                 <div id="pipetreedata"><button type="button" class="btn btn-default btn-lg">
                     <span class="glyphicon glyphicon-copy" aria-hidden="true"></span>
                 </button></div>
@@ -24,6 +26,11 @@
             </div>
             <div class="swiper-slide no-swipe grey">
                 {{> pipecodepreview data}}
+            </div>
+            <div class="swiper-slide no-swipe scrolly">
+                {{#if contractDeployed}}
+                    {{> abiui abidata}}
+                {{/if}}
             </div>
 
         </div>

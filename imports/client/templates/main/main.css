@@ -12,10 +12,10 @@ html, body, #__blaze-root, .swiper-container {
     padding-top: 1px;
 }
 .swiper-slide {
-    width: 80%;
+    width: 75%;
 }
 .swiper-slide:nth-child(2n), .swiper-slide:nth-child(4n) {
-    width: 20%;
+    width: 25%;
     overflow-y: scroll;
 }
 .swiper-scrollbar {
@@ -24,6 +24,12 @@ html, body, #__blaze-root, .swiper-container {
 
 .grey {
     background-color: #ccc;
+}
+
+.scrolly {
+    width: 100%;
+    height: 90%;
+    overflow-y: scroll;
 }
 
 #pipetreedata {

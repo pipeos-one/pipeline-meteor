@@ -1,4 +1,4 @@
-export default function toJavascript(graph, inputs) {
+export default function toJavascript(graph, inputs, index) {
 
     // let code =
     //     `web3.eth.sendTransaction({
@@ -27,7 +27,7 @@ export default function toJavascript(graph, inputs) {
 
 `;
     let code =
-        `PipedContract.methods.PipedFunction(${func_inputs}).send(
+        `PipedContract.methods.PipedFunction${index}(${func_inputs}).send(
             {},
             function(error2, transactionHash){
                 console.log(error2, transactionHash);
