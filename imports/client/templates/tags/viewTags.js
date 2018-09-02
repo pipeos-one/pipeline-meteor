@@ -10,7 +10,7 @@ Template.viewTags.onCreated(function() {
 
 Template.viewTags.helpers({
     tags: function() {
-        return Pipeline.collections.Tag.find({}).fetch();
+        return [{_id: 0, name: 'untagged'}].concat(Pipeline.collections.Tag.find({}).fetch());
     }
 });
 

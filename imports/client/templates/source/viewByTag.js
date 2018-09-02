@@ -11,11 +11,15 @@ Template.viewByTag.onRendered(function() {
 Template.viewByTag.helpers({
     contracts: function() {
         let tag = Template.instance().data.tag.get();
-        let result = [];
-        if (tag) {
-            result = Pipeline.collections.ContractSource.find({tags: {$in: [tag]}}).fetch();
+        let query = {};
+        if (tag == 0) {
+            query = {tags: {$exists: false}};
         }
-        return result;
+        if (tag) {
+            query = {tags: {$in: [tag]}};
+        }
+
+        return Pipeline.collections.ContractSource.find(query).fetch();
     },
     popoverContent: function() {
         devdoc = JSON.parse(this.devdoc);
