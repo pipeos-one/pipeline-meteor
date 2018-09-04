@@ -4,8 +4,8 @@ import './viewByTag.html';
 // We expect a ReactiveVar to be set by the parent
 // Template.instance().data.contract
 
-Template.viewByTag.onRendered(function() {
-
+Template.viewByTag.onCreated(function() {
+    this.viewables = new ReactiveVar([]);
 });
 
 Template.viewByTag.helpers({
@@ -19,7 +19,17 @@ Template.viewByTag.helpers({
             query = {tags: {$in: [tag]}};
         }
 
-        return Pipeline.collections.ContractSource.find(query).fetch();
+        let contracts = Pipeline.collections.ContractSource.find(query).map(function(contract, i) {
+            contract.index = i;
+            return contract;
+        });
+        let length = contracts.length;
+        Template.instance().viewables.set(new Array(length).fill(false, 0, length));
+
+        return contracts;
+    },
+    viewable: function() {
+        return Template.instance().viewables.get()[this.index];
     },
     popoverContent: function() {
         devdoc = JSON.parse(this.devdoc);
@@ -33,24 +43,30 @@ Template.viewByTag.helpers({
         return str;
     },
     modaldata: function() {
+        let self = this;
         let contract_deployed, contract;
-        console.log(this)
-        contract_deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: this._id});
+        console.log(self)
+        contract_deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: self._id});
         if (contract_deployed && web3.isConnected()) {
             contract = web3.eth.contract(
-                JSON.parse(this.abi)
+                JSON.parse(self.abi)
             ).at(contract_deployed.eth_address);
         }
         else {
-            contract = {abi: JSON.parse(this.abi)};
+            contract = {abi: JSON.parse(self.abi)};
         }
 
         return {
-            id: 'abi_' + this._id,
+            id: 'abi_' + self._id,
             template: 'abiui',
             hiddenSave: true,
             contract,
-            title: this.name
+            title: self.name,
+            saveAction: function() {
+                let viewables = Template.instance().viewables.get();
+                viewables[self.index] = false;
+                Template.instance().viewables.set(viewables);
+            }
         }
     }
 });
@@ -79,6 +95,12 @@ Template.viewByTag.events({
         $(event.currentTarget).popover('hide');
     },
     'click .abi': function(event) {
-        $('#generalModal_abi_' + this._id).modal({backdrop: false});
+        let self = this;
+        let viewables = Template.instance().viewables.get();
+        viewables[self.index] = true;
+        Template.instance().viewables.set(viewables);
+        setTimeout(function() {
+            $('#generalModal_abi_' + self._id).modal({backdrop: false});
+        }, 500);
     }
 });

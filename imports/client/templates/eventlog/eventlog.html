@@ -1,0 +1,12 @@
+<template name="eventlog">
+    <ul class="list-group">
+    {{#each events}}
+        <li class="list-group-item list-group-item-light">
+            {{#if name}}{{name}}: {{/if}}{{event}}
+            {{#each argsarray args}}
+                <pre>{{showargs this}}</pre>
+            {{/each}}
+        </li>
+    {{/each}}
+    </ul>
+</template>

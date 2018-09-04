@@ -22,3 +22,11 @@
     margin-left: 0;
     border-top: 1px solid #ab9898;
 }
+
+.halffit {
+    width: 50%;
+}
+
+.flex {
+    display: flex;
+}

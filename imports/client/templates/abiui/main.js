@@ -2,6 +2,7 @@ import { Tracker } from 'meteor/tracker';
 import AbiUI from './abiui.js';
 import './main.html';
 import './main.css';
+import '../eventlog/eventlog.js';
 
 
 Template.abiuiWrap.helpers({
@@ -14,6 +15,7 @@ Template.abiuiWrap.helpers({
         id = FlowRouter.getParam('_id');
         contract_source = Pipeline.collections.ContractSource.findOne({_id: id});
         contract_deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: id});
+        
         if (web3.isConnected()) {
             contract = web3.eth.contract(
                 JSON.parse(contract_source.abi)
@@ -24,6 +26,7 @@ Template.abiuiWrap.helpers({
                 abi: JSON.parse(contract_source.abi)
             }
         }
+        contract.name = contract_source.name;
         return {id, contract}
     }
 })
@@ -34,6 +37,15 @@ Template.abiui.onRendered(function() {
     if (contract_instance) {
         this.abiui = new AbiUI(contract_instance, domid);
         this.abiui.show();
+    }
+});
+
+Template.abiui.helpers({
+    data: function() {
+        return {
+            contractInstance: Template.instance().data.contract,
+            contractName: Template.instance().data.contract.name,
+        }
     }
 });
 

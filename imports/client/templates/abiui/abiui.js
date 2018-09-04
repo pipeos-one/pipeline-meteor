@@ -4,8 +4,8 @@ class ContractCommunication {
         let html = '';
         this.io_abi.map(function(val, i) {
             html += `<div class="row ${self.domclass}">`;
-            html += `<div class="col-sm-2" align="right"><label class="abi_label">${val.name}</label></div>`
-            html += `<div class="col-sm-4"><input type="text" value="" class="form-control sm" id="${self.html_id}_${i}" placeholder="${val.type}"></div>`
+            html += `<div class="col-sm-4" align="right"><label class="abi_label">${val.name}</label></div>`
+            html += `<div class="col-sm-8"><input type="text" value="" class="form-control sm" id="${self.html_id}_${i}" placeholder="${val.type}"></div>`
             html += '</div>';
         }).join(',');
 
@@ -84,7 +84,7 @@ class ContractFunction {
 
     getButtonHtml() {
         let type = ['view', 'pure'].indexOf(this.func_abi.stateMutability) > -1 ? "btn-call" : "btn-txn"
-        return '<div class="row"><div class="col-sm-6"><button type="button" class="btn ' + type + ' btn-block" id="button_' + this.id + '">' + this.func_abi.name + '</button></div></div>';
+        return '<div class="row"><div class="col-sm-12"><button type="button" class="btn ' + type + ' btn-block" id="button_' + this.id + '">' + this.func_abi.name + '</button></div></div>';
     }
 
     init() {
@@ -151,8 +151,8 @@ class AbiUI {
         this.abi = contract_instance.abi
         this.domid = 'abi_' + domid
         this.components = []
-
-        $('#' + domid).append('<div class="container-fluid" id="' + this.domid + '">');
+        // container-fluid
+        $('#' + domid).append('<div class="" id="' + this.domid + '">');
         this.elem = $('#' + this.domid)
 
         this.init();

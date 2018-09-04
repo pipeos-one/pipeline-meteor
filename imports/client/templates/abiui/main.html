@@ -6,5 +6,16 @@
 
 
 <template name="abiui">
-    <div class="abiui" id="abiui_{{id}}"></div>
+    <div class="container-fluid">
+        <div class="row flex">
+            <div class="halffit">
+                <div class="abiui" id="abiui_{{id}}"></div>
+            </div>
+            <div class="halffit">
+                <div class="col-sm-10">
+                    {{> eventlog data}}
+                </div>
+            </div>
+        </div>
+    </div>
 </template>

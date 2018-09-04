@@ -85,7 +85,7 @@ Template.main.helpers({
             saveAction: function() {
                 $('#insertContractSource').submit();
             },
-            id: 'add_contract'
+            id: 'add_contract',
         }
     },
     treedata: function() {

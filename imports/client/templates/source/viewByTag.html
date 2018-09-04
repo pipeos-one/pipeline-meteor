@@ -6,7 +6,9 @@
                 <button class='btn btn-default pipe' data-id='{{_id}}'>pipe</button>
             </div>
             <label data-toggle="popover" title="{{name}}" data-content="{{popoverContent}}">{{name}}</label>
-            {{> generalModal modaldata}}
+            {{#if viewable}}
+                {{> generalModal modaldata}}
+            {{/if}}
         </div>
     {{/each}}
 </template>
