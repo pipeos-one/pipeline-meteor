@@ -6,7 +6,11 @@
                     {{#if showSave}}
                         <button type="button" class="btn btn-primary save">Save</button>
                     {{/if}}
-                    <label>{{title}}</label>
+                    {{#if titleTemplate}}
+                        {{{titleTemplate}}}
+                    {{else}}
+                        <label>{{title}}</label>
+                    {{/if}}
                     <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
                 </div>
                 <div class="modal-body">

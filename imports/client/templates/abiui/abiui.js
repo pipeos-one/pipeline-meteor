@@ -123,9 +123,15 @@ class ContractFunction {
                 {value: eth_value},
                 function(error, txn_hash) {
                     console.log('value', txn_hash);
-                    if (self.outputs && txn_hash) {
+                    /*if (self.outputs && txn_hash) {
                         self.outputs.set(txn_hash);
-                    }
+                    }*/
+                    let network = Pipeline.chains[web3.version.network];
+                    network = network.slice(0, 1).toUpperCase() + network.slice(1, network.length);
+                    let link_etherscan = `https://${network}.etherscan.io/tx/${txn_hash}`;
+                    let id = `txhash_${this.html_id}`;
+                    $(`#${id}`).remove();
+                    self.elem.append(`<a id="${id}" href="${link_etherscan}" target="_blank">${link_etherscan}</a>`);
                 }
             );
         });

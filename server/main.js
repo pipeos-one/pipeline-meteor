@@ -6,3 +6,4 @@ import '/imports/lib/methods/tag.js';
 import '/imports/server/publish/contracts.js';
 
 import '/imports/server/compile.js';
+import '/imports/server/methods/contracts.js';

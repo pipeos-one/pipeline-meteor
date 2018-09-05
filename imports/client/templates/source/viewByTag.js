@@ -56,17 +56,23 @@ Template.viewByTag.helpers({
             contract = {abi: JSON.parse(self.abi)};
         }
 
+        let network = Pipeline.chains[web3.version.network];
+        network = network.slice(0, 1).toUpperCase() + network.slice(1, network.length);
+
+        let link_etherscan = `https://${network}.etherscan.io/address/${contract_deployed.eth_address}`
+
         return {
             id: 'abi_' + self._id,
             template: 'abiui',
             hiddenSave: true,
             contract,
-            title: self.name,
+            titleTemplate: `<label>${self.name} - deployed on ${network} - </label> <a href="${link_etherscan}" target="_blank">${link_etherscan}</a>`,
             saveAction: function() {
                 let viewables = Template.instance().viewables.get();
                 viewables[self.index] = false;
                 Template.instance().viewables.set(viewables);
-            }
+            },
+            contractName: self.name,
         }
     }
 });

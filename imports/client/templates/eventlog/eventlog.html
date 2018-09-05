@@ -2,7 +2,7 @@
     <ul class="list-group">
     {{#each events}}
         <li class="list-group-item list-group-item-light">
-            {{#if name}}{{name}}: {{/if}}{{event}}
+            {{#if name}}{{name}} -> {{/if}}{{#if sourceContractName}}{{sourceContractName}}: {{/if}}{{event}}
             {{#each argsarray args}}
                 <pre>{{showargs this}}</pre>
             {{/each}}
