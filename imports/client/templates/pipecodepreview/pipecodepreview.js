@@ -31,6 +31,14 @@ Template.pipecodepreview.onRendered(function() {
     $('#pipenav').tab();
 });
 
+Template.pipecodepreview.helpers({
+    networkName: function() {
+        let network = Pipeline.chains[web3.version.network];
+        network = network.slice(0, 1).toUpperCase() + network.slice(1, network.length);
+        return network;
+    }
+});
+
 Template.pipecodepreview.events({
     'click #deploy': function() {
         let code = Template.instance().pipecode.get();

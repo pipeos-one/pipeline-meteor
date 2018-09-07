@@ -11,17 +11,21 @@ Template.viewByTag.onCreated(function() {
 Template.viewByTag.helpers({
     contracts: function() {
         let tag = Template.instance().data.tag.get();
+        let contracts = [];
         let query = {};
         if (tag == 0) {
-            query = {tags: {$exists: false}};
+            query.tags = {$exists: false};
         }
         if (tag) {
-            query = {tags: {$in: [tag]}};
+            query.tags = {$in: [tag]};
         }
 
-        let contracts = Pipeline.collections.ContractSource.find(query).map(function(contract, i) {
-            contract.index = i;
-            return contract;
+        Pipeline.collections.ContractSource.find(query).map(function(contract, i) {
+            let deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: contract._id, chain_id: web3.version.network});
+            if (deployed) {
+                contract.index = i;
+                contracts.push(contract);
+            }
         });
         let length = contracts.length;
         Template.instance().viewables.set(new Array(length).fill(false, 0, length));
