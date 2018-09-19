@@ -5,14 +5,18 @@
         <div class="swiper-wrapper">
             <!-- Slides -->
             <div class="swiper-slide no-swipe">
-                <button type="button" class="btn btn-default addContract">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </button>
-                {{> generalModal modaldata}}
-                {{> viewTags data}}
-                <div class="scrolly">
-                    {{> viewByTag data}}
-                </div>
+                {{#if notWeb3}}
+                    {{> notWeb3Template}}
+                {{else}}
+                    <button type="button" class="btn btn-default addContract">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    </button>
+                    {{> generalModal modaldata}}
+                    {{> viewTags data}}
+                    <div class="scrolly">
+                        {{> viewByTag data}}
+                    </div>
+                {{/if}}
                 <div id="pipetreedata"><button type="button" class="btn btn-default btn-lg">
                     <span class="glyphicon glyphicon-copy" aria-hidden="true"></span>
                 </button></div>
@@ -49,4 +53,8 @@
 
 <template name="abiarray">
     <textarea id="abiarray" class="fit">{{data}}</textarea>
+</template>
+
+<template name="notWeb3Template">
+    You are not connected to a web3 instance. Please download <a href="https://metamask.io/" target="_blank">Metamask</a> and log in.
 </template>

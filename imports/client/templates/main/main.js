@@ -59,6 +59,9 @@ Template.main.onRendered(function() {
 });
 
 Template.main.helpers({
+    notWeb3: function() {
+        return typeof(web3) == 'undefined';
+    },
     data() {
         return {
             tag: Template.instance().tag,
