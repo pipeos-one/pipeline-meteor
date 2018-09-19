@@ -11,11 +11,13 @@
             <div class="halffit">
                 <div class="abiui" id="abiui_{{id}}"></div>
             </div>
-            <div class="halffit">
-                <div class="col-sm-10">
-                    {{> eventlog data}}
+            {{#if events}}
+                <div class="halffit">
+                    <div class="col-sm-10">
+                        {{> eventlog data}}
+                    </div>
                 </div>
-            </div>
+            {{/if}}
         </div>
     </div>
 </template>

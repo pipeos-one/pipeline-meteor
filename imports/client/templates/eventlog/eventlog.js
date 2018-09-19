@@ -19,7 +19,6 @@ Template.eventlog.onCreated(function() {
 
     self.logEvents = () => {
         self.othercontracts.get().map(contract => {
-            console.log('contract', contract)
             let instance = web3.eth.contract(JSON.parse(contract.abi)).at(contract.eth_address);
 
             self.filters.push(
@@ -36,6 +35,9 @@ Template.eventlog.onCreated(function() {
     }
     self.stopEvents = () => {
         self.filters.map(filter => filter.stopWatching());
+        if (self.filter) {
+            self.filter.stopWatching();
+        }
     }
 
     Tracker.autorun(() => {
@@ -43,7 +45,6 @@ Template.eventlog.onCreated(function() {
         self.logEvents()
     });
 
-    console.log(self.contract)
     let included_contracts = [];
     self.contract.abi.forEach((item) => {
         if (
@@ -55,7 +56,6 @@ Template.eventlog.onCreated(function() {
         }
     });
 
-    console.log(included_contracts);
     Meteor.call('contracts.getFromNames', included_contracts, function(error, result) {
         if (error) console.log(error);
         self.stopEvents();
@@ -65,7 +65,7 @@ Template.eventlog.onCreated(function() {
 
 
 Template.eventlog.onDestroyed(function() {
-    self.filter.stopWatching();
+    this.stopEvents();
 })
 
 Template.eventlog.helpers({

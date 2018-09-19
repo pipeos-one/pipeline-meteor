@@ -41,6 +41,9 @@ Template.abiui.onRendered(function() {
 });
 
 Template.abiui.helpers({
+    events: function() {
+        return Template.instance().data.contract.allEvents;
+    },
     data: function() {
         return {
             contractInstance: Template.instance().data.contract,

@@ -134,7 +134,3 @@ Template.main.events({
         $('#generalModal_showabis').modal({backdrop: false});
     }
 });
-
-Template.abiarray.onRendered(function() {
-    console.log(this.data)
-});
