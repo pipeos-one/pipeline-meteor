@@ -5,7 +5,7 @@ class ContractCommunication {
         this.io_abi.map(function(val, i) {
             html += `<div class="row ${self.domclass}">`;
             html += `<div class="col-sm-4" align="right"><label class="abi_label">${val.name}</label></div>`
-            html += `<div class="col-sm-8"><input type="text" value="" class="form-control sm" id="${self.html_id}_${i}" placeholder="${val.type}"></div>`
+            html += `<div class="col-sm-8"><input type="text" value="" class="form-control sm" id="${self.html_id}_${val.name}" placeholder="${val.type}"></div>`
             html += '</div>';
         }).join(',');
 
@@ -20,7 +20,7 @@ class ContractCommunication {
     get() {
         let self = this;
         return this.io_abi.map(function(val, i) {
-            return $(`#${self.html_id}_${i}`).val();
+            return $(`#${self.html_id}_${val.name}`).val();
         });
     }
 
@@ -32,7 +32,7 @@ class ContractCommunication {
             });
         }
         else {
-            $(`#${self.html_id}_${index}`).val(value);
+            $(`#${self.html_id}_${this.io_abi[index].name}`).val(value).change();
         }
     }
 
@@ -88,13 +88,12 @@ class ContractFunction {
     }
 
     init() {
-        // console.log('functtion init ', this.func_abi)
         this.parent_elem.append(this.getHtml());
         this.elem = $('#' + this.id);
         this.showButton();
-        // console.log(this.func_abi);
+
         if (this.func_abi.payable) {
-            this.value_input = new ContractInput(this.id + '_value_input' , this.elem, [{name: 'WEI', type: '0'}]);
+            this.value_input = new ContractInput(this.id + '_input' , this.elem, [{name: 'WEI', type: '0'}]);
         }
 
         if (this.func_abi.inputs.length > 0) {
@@ -154,11 +153,12 @@ class ContractFunction {
 }
 
 class AbiUI {
-    constructor(contract_instance, domid) {
+    constructor(contract_instance, domid, shown_functions=null) {
         this.contract = contract_instance
         this.abi = contract_instance.abi
         this.domid = 'abi_' + domid
         this.components = []
+        this.shown_functions = shown_functions
         // container-fluid
         $('#' + domid).append('<div class="" id="' + this.domid + '">');
         this.elem = $('#' + this.domid)
@@ -167,7 +167,9 @@ class AbiUI {
     }
 
     init() {
-        for (let elem of this.abi) {
+        let shown_abis = this.shown_functions ? this.abi.filter(abi => this.shown_functions.find(name => name == abi.name)) : this.abi;
+
+        for (let elem of shown_abis) {
             if (elem.type == 'function') {
                 this.components.push(new ContractFunction(this.contract, elem, this.elem));
             }

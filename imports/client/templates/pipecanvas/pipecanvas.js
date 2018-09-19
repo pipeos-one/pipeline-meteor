@@ -63,17 +63,19 @@ Template.pipecanvas.onRendered(function() {
         );
         let graphs_to_sol = new GraphsToSolidity(self.graphs);
         let pipecode = graphs_to_sol.toSolidity();
-        let pipejscode = '';
+        let pipejscode = '', pipedebugger = [];
         let input_args = ['address _seth_proxy'].concat(graphs_to_sol.ffunc).map(function(arg) {
             return arg.split(' ');
         });
         graphs_to_sol.graphs.map(function(graph, index) {
             pipejscode += toJavascript(graph.graph, graph.inputs, index + 1) + '\n';
+            pipedebugger.push(graph.debugger);
         });
         self.pipegram.set(pipegram);
         self.pipecode.set(pipecode);
         self.pipejscode.set(pipejscode);
         self.pipeinputs.set(input_args);
+        self.data.pipedebugger.set(pipedebugger);
     }
 
     joint.dia.ElementView.prototype.pointerdown = function(evt, x, y) {

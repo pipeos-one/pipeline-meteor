@@ -15,7 +15,7 @@ Template.abiuiWrap.helpers({
         id = FlowRouter.getParam('_id');
         contract_source = Pipeline.collections.ContractSource.findOne({_id: id});
         contract_deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: id});
-        
+
         if (web3.isConnected()) {
             contract = web3.eth.contract(
                 JSON.parse(contract_source.abi)
@@ -34,8 +34,10 @@ Template.abiuiWrap.helpers({
 Template.abiui.onRendered(function() {
     let domid = 'abiui_' + Template.instance().data.id
     let contract_instance = Template.instance().data.contract
+    let shown_functions = Template.instance().data.shown_functions
+
     if (contract_instance) {
-        this.abiui = new AbiUI(contract_instance, domid);
+        this.abiui = new AbiUI(contract_instance, domid, shown_functions);
         this.abiui.show();
     }
 });

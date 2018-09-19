@@ -10,6 +10,7 @@ import '../pipetree/pipetree.js';
 import '../pipecanvas/pipecanvas.js';
 import '../pipecodepreview/pipecodepreview.js';
 import '../modal/modal.js';
+import '../debugger/debugger.js';
 
 import './main.html';
 import './main.css';
@@ -26,6 +27,7 @@ Template.main.onCreated(function helloOnCreated() {
     self.pipeContracts = new ReactiveVar();
     self.pipeinputs = new ReactiveVar();
     self.pipedeployed = new ReactiveVar();
+    self.pipedebugger = new ReactiveVar();
 
     self.autorun(function() {
         let contract_ids = Template.instance().contracts.get();
@@ -35,7 +37,7 @@ Template.main.onCreated(function helloOnCreated() {
             contract.devdoc = JSON.parse(contract.devdoc);
             return contract;
         });
-        console.log('contracts', contracts)
+
         self.pipeContracts.set(contracts);
     });
 });
@@ -72,6 +74,7 @@ Template.main.helpers({
             pipejscode: Template.instance().pipejscode,
             pipeinputs: Template.instance().pipeinputs,
             pipedeployed: Template.instance().pipedeployed,
+            pipedebugger: Template.instance().pipedebugger,
         };
     },
     pipetreedata: function() {
@@ -95,7 +98,7 @@ Template.main.helpers({
         let template = Template.instance();
         let contracts = template.pipeContracts.get();
         if (!contracts) return;
-        console.log('contracts', contracts)
+
         contracts = contracts.map(function(contract) {
             return {
                 abi: contract.abi,
@@ -125,6 +128,15 @@ Template.main.helpers({
         return {
             id: 'deployed_contract',
             contract,
+        }
+    },
+    showdebugger: () => {
+        return !Template.instance().pipedeployed.get();
+    },
+    pipedebuggerdata: () => {
+        return {
+            pipedebugger: Template.instance().pipedebugger,
+            functionAbi: Template.instance().functionAbi,
         }
     }
 });

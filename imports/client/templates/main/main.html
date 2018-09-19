@@ -32,6 +32,9 @@
                 {{> pipecodepreview data}}
             </div>
             <div class="swiper-slide no-swipe scrolly">
+                {{#if showdebugger}}
+                    {{> pipedebugger pipedebuggerdata}}
+                {{/if}}
                 {{#if contractDeployed}}
                     {{> abiui abidata}}
                 {{/if}}

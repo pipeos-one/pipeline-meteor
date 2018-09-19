@@ -36,7 +36,6 @@ export default class GraphsToSolidity {
     preRun() {
         this.graphs.forEach(function(graph) {
             graph.preRun();
-            // console.log('preRun', graph.funcs);
         });
     }
 
@@ -59,7 +58,6 @@ export default class GraphsToSolidity {
     setContractAddresses() {
         let self = this;
         this.graphs.forEach(function(graph) {
-            // console.log('setContractAddresses', graph)
             self.solidity_code += self.getContractAddresses(graph);
         });
     }
@@ -78,23 +76,51 @@ class GraphToSolidity {
         this.graph = graph;
         this.index = index;
         this.solidity_code = '';
+        // {function: [{argument: [{function, argument}] }] }
+        this.debugger = {
+            abi: [],
+            io: {},
+        }
         this.run = {inPorts:[], outPorts:[], toRun:[], ready:[]};
         this.cells = [];
         this.funcs = [];
         this.inputs = [];
+        this.function_name = 'PipedFunction' + this.index;
     }
 
-    toSolidity(){
+    toSolidity() {
         // this.preRun();
-
+        let function_name = this.function_name;
         this.solidity_code += solidity.function_p0;
-        this.solidity_code += 'PipedFunction' + this.index;
+        let inputs = this.inputs.map(function(input) {
+            let values = input.split(': ');
+            return {
+                type: values[0].split('.')[1],
+                name: values[1]
+            }
+        });
+        this.debugger.abi.push({
+            name: function_name,
+            type: 'function',
+            constant: false,
+            inputs,
+            outputs: [],
+        });
+        this.debugger.io[function_name] = [];
+
+        this.solidity_code += function_name;
         this.solidity_code += solidity.function_pp0;
-        // console.log(inputs)
+
         this.inputs.forEach((inP, ndx) => {
-            if (inP.split(".")[1] == "uint256: wei_value") return;
-            if (inP.split(".")[1] == "address: tx_sender") return;
-            this.solidity_code += inP.split(".")[1].replace(": "," ")+", "
+            let input = inP.split(".")[1];
+            let io = {};
+            io[input.split(': ')[1]] = [];
+            if (input == "uint256: wei_value") return;
+            if (input == "address: tx_sender") return;
+            this.solidity_code += input.replace(": "," ")+", ";
+            this.debugger.io[function_name].push(io);
+            this.debugger.io[function_name].push({wei_value: []});
+            this.debugger.io[function_name].push({tx_sender: []});
         })
         this.solidity_code = this.solidity_code.substring(0, this.solidity_code.length - 2);
 
@@ -103,7 +129,11 @@ class GraphToSolidity {
         if (this.run.outPorts.length > 0) {
             this.solidity_code += solidity.function_ret0;
             this.run.outPorts.forEach((inP, ndx) => {
-                this.solidity_code += inP.split(".")[1].replace(": "," ")+", "
+                let output = inP.split(".")[1];
+                let io = {};
+                io[output.split(': ')[1]] = [];
+                this.solidity_code += output.replace(": "," ")+", ";
+                this.debugger.io[function_name].push(io);
             })
             this.solidity_code = this.solidity_code.substring(0, this.solidity_code.length - 2);
             this.solidity_code += solidity.function_ret1
@@ -111,6 +141,7 @@ class GraphToSolidity {
 
         this.solidity_code += solidity.function_p2;
 
+        // Functions piped are in order here
         let inArgs = "", outArgs="";
         for (let nx in this.funcs){
             this.forFunc(this.funcs[this.funcs.length-nx-1])
@@ -130,24 +161,48 @@ class GraphToSolidity {
     }
 
     forFunc(func){
-        // console.log(func)
+        let function_name = func.attrs[".label"].text.split(".\n")[1];
+        this.debugger.abi.push({name: function_name});
+        this.debugger.io[function_name] = [];
+
         let outs = [], ins = [], touts = [], tins = [], tins2=[], ttins=[]
-        func.outPorts.forEach((out, dx)=>{
+        func.outPorts.forEach((out, dx) => {
+            let outputName = out.split(" ")[1];
+            let output = {};
+            output[outputName] = [];
+            this.debugger.io[function_name].push(output)
             outs.push(this.getIO(func.id, out, 1))
             touts.push(out)
         })
+
         func.inPorts.forEach((inn, dx)=>{
             let inIt = this.getIO(func.id, inn, 0);
+            let inputName = inn.split(" ")[1];
+            let input = {};
+            input[inputName] = []
+            let correspondingOutput = this.getIO2(func.id, inn, 0)
+
             if (!inIt) {
-                ins.push(inn.split(" ")[1])
+                ins.push(inputName)
             } else {
                 ins.push(inIt)
             }
             tins.push(inn.split(": ")[0])
             tins2.push(this.getIO2(func.id, inn, 0))
-            ttins.push(inn.split(": ")[1])
+            ttins.push(inputName)
 
+            for (let func_name in this.debugger.io) {
+                this.debugger.io[func_name].map(argument_map => {
+                    if (argument_map[correspondingOutput]) {
+                        argument_map[correspondingOutput].push({
+                            function: function_name,
+                            argument: inputName,
+                        });
+                    }
+                });
+            }
         })
+
         if (outs.length >0 ) {
             if (!outs[0]) {
                 //sol = sol + "("+this.run.outPorts.join(", ").replace(": "," ")+") = ";
@@ -156,14 +211,26 @@ class GraphToSolidity {
             }
 
         }
-        // console.log(ins)
-        this.solidity_code += "\n    signature42 = bytes4(keccak256(\""+func.attrs[".label"].text.split(".\n")[1]+"("+tins.join(",")+")\"));\n    input42 = abi.encodeWithSelector(signature42, "+tins2.join(",")+");\n"
+
+        this.solidity_code += `\n    signature42 = bytes4(keccak256("${ function_name}(${tins.join(',')})"));\n    input42 = abi.encodeWithSelector(signature42, ${tins2.join(",")});\n`;
+
         if (touts.length > 0){
             this.solidity_code += "    answer42 = ";
         }
         this.solidity_code += "    seth_proxy.proxyCallInternal";
         if (func.attrs.pipeline.abi.payable) {
             this.solidity_code += ".value(msg.value)";
+
+            for (let func_name in this.debugger.io) {
+                this.debugger.io[func_name].map(argument_map => {
+                    if (argument_map['wei_value']) {
+                        argument_map['wei_value'].push({
+                            function: function_name,
+                            argument: 'WEI',
+                        });
+                    }
+                });
+            }
         }
         this.solidity_code += "("+func.attrs[".label"].text.split(".\n")[0]+"_address , input42, 32);\n"
         touts.forEach((o,n)=>{
@@ -258,8 +325,6 @@ class GraphToSolidity {
             }
         }
 
-
-
         this.cells.forEach((cell, index) => {
             if (cell.type == "link") {
                 //console.log(cell.source.id+"."+cell.source.port)
@@ -278,15 +343,12 @@ class GraphToSolidity {
             proc.ready.push(cell);
             cell.outPorts.forEach((port,ndx)=> {
                 if (this.run.outPorts.indexOf(cell.id+"."+port ) <0 ){
-                    //console.log((cell.id+"."+port))
                     proc.ready.pop();
                 }
             })
 
         })
-        //console.log(proc)
         if (proc.ready.length == 0) return;
-        // console.log(proc.ready)
 
         proc.ready.forEach((cell, index) => {
 
@@ -294,7 +356,6 @@ class GraphToSolidity {
             proc.outPorts = []
             proc.toRun.forEach((rcell, ndx)=> {
                 if (rcell.type == "devs.Atomic") {
-                    //this.run.inPorts.push()
                     rcell.outPorts.forEach((inP, index2) => {
                         proc.outPorts.push(rcell.id+"."+inP)
                     })
@@ -306,7 +367,6 @@ class GraphToSolidity {
     }
 
     runFunc(arg){
-        //console.log(arg)
         this.funcs.push(arg)
     }
 }

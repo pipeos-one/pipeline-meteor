@@ -1,0 +1,9 @@
+<template name="pipedebugger">
+    {{#if showdebugger}}
+        {{#each data}}
+            {{#each this}}
+                {{> abiui this}}
+            {{/each}}
+        {{/each}}
+    {{/if}}
+</template>

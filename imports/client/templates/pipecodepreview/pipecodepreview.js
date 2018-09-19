@@ -28,6 +28,11 @@ Template.pipecodepreview.onRendered(function() {
         $('#pipejscode').val(code);
     });
 
+    Tracker.autorun(function() {
+        let code = self.data.pipedebugger.get();
+        $('#pipedebugger').val(JSON.stringify(code));
+    })
+
     $('#pipenav').tab();
 });
 
