@@ -27,6 +27,12 @@ Template.viewByTag.helpers({
                 contracts.push(contract);
             }
         });
+        Pipeline.collections.JavascriptSource.find(query).map(function(pipe_function, i) {
+            let contract = Object.assign({}, pipe_function);
+            contract.name = `SolJsComposite_${pipe_function.name}`;
+            contract.pipefunction = pipe_function;
+            contracts.push(contract);
+        });
         let length = contracts.length;
         Template.instance().viewables.set(new Array(length).fill(false, 0, length));
 

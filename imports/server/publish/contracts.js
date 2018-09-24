@@ -7,6 +7,7 @@ Meteor.publish('all', function () {
     return [
         Pipeline.collections.ContractSource.find({}),
         Pipeline.collections.DeployedContract.find({}),
-        Pipeline.collections.Tag.find({})
+        Pipeline.collections.Tag.find({}),
+        Pipeline.collections.JavascriptSource.find({}),
     ]
 });

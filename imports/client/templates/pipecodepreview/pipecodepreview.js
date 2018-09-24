@@ -75,9 +75,9 @@ Template.pipecodepreview.events({
             let sender = web3.eth.accounts[0];
 
             web3.eth.estimateGas({data: compiled.bytecode}, function(error, result) {
-                let gasEstimate = result + 50000;
+                let gasEstimate = result + 500000;
 
-                console.log(gasEstimate, sender);
+                console.log('estimateGas', result, gasEstimate, sender);
                 var myContractReturned = PipedContract.new(...addresses, {
                     from: sender,
                     data: compiled.bytecode,

@@ -35,12 +35,13 @@ Template.pipedebugger.onRendered(function() {
         setTimeout(function() {
             pipedebugger.map((debug, index) => {
                 let main_function_name = `PipedFunction${index + 1}`;
+
                 debug.io[main_function_name].map(output => {
                     Object.keys(output).map(output_name => {
-                        $(`input[id*="${main_function_name}_input_${output_name}"]`).change(event => {
+                        $(`input[id$="${main_function_name}_input_${output_name}"]`).change(event => {
                             let value = $(event.currentTarget).val();
                             output[output_name].map(linked_functions => {
-                                $(`input[id*="${linked_functions.function}_input_${linked_functions.argument}"]`).val(value);
+                                $(`input[id$="${linked_functions.function}_input_${linked_functions.argument}"]`).val(value);
                             });
                         });
                     });
@@ -50,10 +51,10 @@ Template.pipedebugger.onRendered(function() {
                     if (function_name == main_function_name) continue;
                     debug.io[function_name].map(output => {
                         Object.keys(output).map(output_name => {
-                            $(`input[id*="${function_name}_output_${output_name}"]`).change(event => {
+                            $(`input[id$="${function_name}_output_${output_name}"]`).change(event => {
                                 let value = $(event.currentTarget).val();
                                 output[output_name].map(linked_functions => {
-                                    $(`input[id*="${linked_functions.function}_input_${linked_functions.argument}"]`).val(value);
+                                    $(`input[id$="${linked_functions.function}_input_${linked_functions.argument}"]`).val(value);
                                 });
                             });
                         });
@@ -76,7 +77,6 @@ Template.pipedebugger.helpers({
 
         return pipedebugger.map(function(pipefunction, index1) {
             let functions = [];
-
             functions.push({
                 id: `pipedebugger_${index1}`,
                 contract: {
@@ -84,15 +84,58 @@ Template.pipedebugger.helpers({
                 }
             });
             pipefunction.abi.slice(1).forEach(function(data, index2) {
-                let func = functionAbis.filter(func => func.abi.name == data.name)[0];
-                let deployed_address = Pipeline.collections.DeployedContract.findOne({contract_source_id: func.contract._id}).eth_address;
-                let contract = web3.eth.contract(func.contract.abi).at(deployed_address);
+                let contract_function;
+                let func = JSON.parse(JSON.stringify(functionAbis.filter(func => func.abi.name == data.name)[0]));
 
-                functions.push({
-                    id: `pipedebugger_${index1}_${index2}`,
-                    contract,
-                    shown_functions: [data.name],
-                })
+                let deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: func.contract._id});
+                if (deployed) {
+                    let contract = web3.eth.contract(func.contract.abi).at(deployed.eth_address);
+
+                    contract_function = {
+                        id: `pipedebugger_${index1}_${index2}`,
+                        contract,
+                        shown_functions: [data.name],
+                    }
+                }
+                let source = Pipeline.collections.JavascriptSource.findOne({_id: func.contract._id});
+                if (source) {
+                    let abi = JSON.parse(source.abi);
+                    abi.render = source.render;
+                    abi.run = source.js_source;
+                    abi = [abi];
+                    contract_function = {
+                        id: `pipedebugger_${index1}_${index2}`,
+                        contract: { abi },
+                        shown_functions: [data.name],
+
+                    }
+                    Meteor.call('js_source.getJS', source._id, function(error, result) {
+                        console.log(error, result);
+                    });
+                }
+
+                let indx = contract_function.contract.abi.findIndex(func => func.name == data.name);
+                if (data.newName) {
+                    contract_function.contract.abi[indx].newName = data.newName;
+                }
+
+                let inputs = contract_function.contract.abi[indx].inputs.map((input, index) => {
+                    let newInputName = data.args_map.ins[`${input.type}: ${input.name}`];
+                    if (newInputName) {
+                        input.newName = newInputName.split(': ')[1];
+                    }
+                    return input;
+                });
+                contract_function.contract.abi[indx].inputs = inputs;
+                let outputs = contract_function.contract.abi[indx].outputs.map((output, index) => {
+                    let newOutputName = data.args_map.outs[`${output.type}: ${output.name}`];
+                    if (newOutputName) {
+                        output.newName = newOutputName.split(': ')[1];
+                    }
+                    return output;
+                });
+                contract_function.contract.abi[indx].outputs = outputs;
+                functions.push(contract_function);
             });
             return functions;
         });

@@ -178,14 +178,14 @@ function addGraph(self) {
     self.graphs[index].on('change', function() {
         self.update();
     });
-    console.log(self);
 }
 
 function addNode(graph, nodes, contract_function) {
     // console.log('addNode', contract_function)
-    abi = contract_function.abi
-    pname = contract_function.contract.name
-    nodetext = abi.name
+    let abi = contract_function.abi
+    let pname = contract_function.contract.name
+    let nodetext = abi.name
+    let existent_cells = graph.toJSON().cells
     let color = "#ddd", ins = [], outs = [];
     if (abi.type == 'event') {
         outs = abi.inputs.map(function(input) {
@@ -205,6 +205,53 @@ function addNode(graph, nodes, contract_function) {
         } else if (!abi.constant) {
             color = "#edd";
         }
+        if (contract_function.contract.render) {
+            color = "#FEFAC8";
+        }
+    }
+
+    // If there are already inputs with the same name in other functions,
+    // add a counter variable to the name of the input
+    args_map = {ins: {}, outs: {}};
+    ins = ins.map(input => {
+        let counter = 0;
+        existent_cells.map(cell => {
+            if (cell.inPorts) {
+                counter += cell.inPorts.filter(inport => inport == input || parseInt(inport.split(input + '_')[1])).length;
+            }
+        });
+        if (counter > 0) {
+            let newinput = `${input}_${counter + 1}`;
+            args_map.ins[input] = newinput;
+            input = newinput;
+        }
+        return input;
+    });
+    outs = outs.map(output => {
+        let counter = 0;
+        existent_cells.map(cell => {
+            if (cell.outPorts) {
+                counter += cell.outPorts.filter(outport => outport == output || parseInt(outport.split(output + '_')[1])).length;
+            }
+        });
+        if (counter > 0) {
+            let newoutput = `${output}_${counter + 1}`;
+            args_map.outs[output] = newoutput;
+            output = newoutput;
+        }
+        return output;
+    });
+    let functionNewName, counter = 0;
+    existent_cells.map(cell => {
+        if (cell.type == 'devs.Atomic') {
+            let function_name = cell.attrs[".label"].text.split(".\n")[1];
+            if (function_name == contract_function.abi.name) {
+                counter ++;
+            }
+        }
+    });
+    if (counter > 0) {
+        functionNewName = `${contract_function.abi.name}_${counter}`
     }
 
     nodes.push(
@@ -232,6 +279,9 @@ function addNode(graph, nodes, contract_function) {
                         name: contract_function.contract.name,
                     },
                     abi: contract_function.abi,
+                    source: contract_function.contract.solidity_source,
+                    args_map,
+                    newName: functionNewName
                 }
 
             }

@@ -1,6 +1,9 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 
+import * as SANCT from 'sanctuary-def';
+import HMD from 'hm-def';
+
 import Swiper from 'swiper';
 import '/node_modules/swiper/dist/css/swiper.css';
 
@@ -37,9 +40,23 @@ Template.main.onCreated(function helloOnCreated() {
             contract.devdoc = JSON.parse(contract.devdoc);
             return contract;
         });
+        Pipeline.collections.JavascriptSource.find({_id: {$in: contract_ids}}).map(function(pipe_function, i) {
+            pipe_function.abi = [JSON.parse(pipe_function.abi)];
+            pipe_function.userdoc = {
+                methods: JSON.parse(pipe_function.userdoc)
+            };
+            pipe_function.devdoc = {
+                methods: JSON.parse(pipe_function.devdoc)
+            };
+            let contract = Object.assign({}, pipe_function);
+            contract.name = `SolJsComposite_${pipe_function.name}`;
+            contract.pipefunction = pipe_function;
+            contracts.push(contract);
+        });
 
         self.pipeContracts.set(contracts);
     });
+
 });
 
 Template.main.onRendered(function() {
@@ -57,6 +74,34 @@ Template.main.onRendered(function() {
         prevEl: '.swiper-button-prev',
         }
     })
+
+    console.log(SANCT);
+
+    //    Integer :: Type
+    const Integer = SANCT.NullaryType
+      ('my-package/Integer')
+      ('http://example.com/my-package#Integer')
+      (x => typeof x === 'number' &&
+            Math.floor (x) === x &&
+            x >= Number.MIN_SAFE_INTEGER &&
+            x <= Number.MAX_SAFE_INTEGER);
+
+    window.def = HMD.create({
+      checkTypes: true,
+      env: SANCT.env.concat([Integer]),
+    });
+
+    // const sum = def(
+    //   'sum :: Integer -> Integer -> Integer -> Integer',
+    //   (a, b, c) => a + b + c
+    // );
+
+    // eval("const sum = def('sum :: Integer -> Integer -> Integer -> Integer',(a, b, c) => a + b + c);")
+
+    $("head").append("<script>window.sum = def('sum :: Integer -> Integer -> Integer -> Integer',(a, b, c) => a + b + c);</script>");
+
+    //sum(x, y, z)
+    console.log('----', sum(5)(8)(14))
 
 });
 

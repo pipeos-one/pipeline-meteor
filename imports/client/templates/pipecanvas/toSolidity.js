@@ -43,8 +43,9 @@ export default class GraphsToSolidity {
         let tm = '', code = '';
         for (let nx in graph.funcs){
             let contract_name = graph.funcs[nx].attrs[".label"].text.split(".\n")[0];
+            let source = graph.funcs[nx].attrs.pipeline.source;
 
-            if (this.contract_names.indexOf(contract_name) == -1) {
+            if (!source && this.contract_names.indexOf(contract_name) == -1) {
                 this.contract_names.push(contract_name);
                 code += "    address public " + contract_name + "_address;\n";
                 this.ffunc.push("address _" + contract_name + "_address")
@@ -89,6 +90,13 @@ class GraphToSolidity {
     }
 
     toSolidity() {
+        for (let nx in this.funcs){
+            let func = this.funcs[this.funcs.length-nx-1]
+            if (func.attrs.pipeline.source) {
+                this.solidity_code += `\n    ${func.attrs.pipeline.source}\n`;
+            }
+        }
+
         // this.preRun();
         let function_name = this.function_name;
         this.solidity_code += solidity.function_p0;
@@ -107,7 +115,6 @@ class GraphToSolidity {
             outputs: [],
         });
         this.debugger.io[function_name] = [];
-
         this.solidity_code += function_name;
         this.solidity_code += solidity.function_pp0;
 
@@ -143,8 +150,11 @@ class GraphToSolidity {
 
         // Functions piped are in order here
         let inArgs = "", outArgs="";
-        for (let nx in this.funcs){
-            this.forFunc(this.funcs[this.funcs.length-nx-1])
+        for (let nx in this.funcs) {
+            let func = this.funcs[this.funcs.length-nx-1]
+            //if (!func.attrs.pipeline.source) {
+                this.forFunc(func);
+            //}
         }
 
         if (this.run.outPorts.length > 0) {
@@ -162,15 +172,20 @@ class GraphToSolidity {
 
     forFunc(func){
         let function_name = func.attrs[".label"].text.split(".\n")[1];
-        this.debugger.abi.push({name: function_name});
-        this.debugger.io[function_name] = [];
+        let debuggerName = func.attrs.pipeline.newName || function_name;
+        this.debugger.abi.push({
+            name: function_name,
+            newName: debuggerName,
+            args_map: func.attrs.pipeline.args_map,
+        });
+        this.debugger.io[debuggerName] = [];
 
         let outs = [], ins = [], touts = [], tins = [], tins2=[], ttins=[]
         func.outPorts.forEach((out, dx) => {
             let outputName = out.split(" ")[1];
             let output = {};
             output[outputName] = [];
-            this.debugger.io[function_name].push(output)
+            this.debugger.io[debuggerName].push(output)
             outs.push(this.getIO(func.id, out, 1))
             touts.push(out)
         })
@@ -195,7 +210,7 @@ class GraphToSolidity {
                 this.debugger.io[func_name].map(argument_map => {
                     if (argument_map[correspondingOutput]) {
                         argument_map[correspondingOutput].push({
-                            function: function_name,
+                            function: debuggerName,
                             argument: inputName,
                         });
                     }
@@ -210,6 +225,20 @@ class GraphToSolidity {
                 //sol = sol + "("+outs.join(", ").replace(": "," ")+") = ";
             }
 
+        }
+
+        if (func.attrs.pipeline.source) {
+            let name = func.attrs.pipeline.abi.name;
+            let outputs = [];
+            touts.forEach(o => {
+                let output_type = o.split(": ")[0];
+                let output_name = o.split(": ")[1];
+                this.solidity_code += `\n    ${output_type} ${output_name};`;
+                outputs.push(output_name);
+
+            });
+            this.solidity_code += `\n    (${outputs.join(',')}) = ${name}(${tins2.join(",")});\n`
+            return;
         }
 
         this.solidity_code += `\n    signature42 = bytes4(keccak256("${ function_name}(${tins.join(',')})"));\n    input42 = abi.encodeWithSelector(signature42, ${tins2.join(",")});\n`;

@@ -151,6 +151,9 @@ function getTreeLeaves(contract, abi) {
             if (item.payable) {
                 leaf.backColor = "#CDE0F2";
             }
+            if (contract.render) {
+                leaf.backColor = "#FEFAC8";
+            }
             if (!leaf.backColor) {
                 leaf.backColor = item.constant ? null : "#E9DEDE";
             }

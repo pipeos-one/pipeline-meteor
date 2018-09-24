@@ -5,6 +5,7 @@ import '../templates/applicationLayout.html';
 import '../templates/main/main.js';
 
 import '../templates/source/insert.js';
+import '../templates/source/insertJS.js';
 import '../templates/source/view.js';
 import '../templates/source/viewByTag.js';
 
@@ -59,6 +60,13 @@ FlowRouter.route('/insert/source', {
   name: 'insert',
   action: function() {
     BlazeLayout.render('ApplicationLayout', {main: 'insert'});
+  }
+});
+
+FlowRouter.route('/insert/javascript', {
+  name: 'insertJS',
+  action: function() {
+    BlazeLayout.render('ApplicationLayout', {main: 'insertJS'});
   }
 });
 
