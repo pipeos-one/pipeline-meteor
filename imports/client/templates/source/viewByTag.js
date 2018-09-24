@@ -55,7 +55,6 @@ Template.viewByTag.helpers({
     modaldata: function() {
         let self = this;
         let contract_deployed, contract;
-        console.log(self)
         contract_deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: self._id});
         if (contract_deployed && web3.isConnected()) {
             contract = web3.eth.contract(

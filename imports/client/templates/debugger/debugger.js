@@ -87,7 +87,7 @@ Template.pipedebugger.helpers({
                 let contract_function;
                 let func = JSON.parse(JSON.stringify(functionAbis.filter(func => func.abi.name == data.name)[0]));
 
-                let deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: func.contract._id});
+                let deployed = Pipeline.collections.DeployedContract.findOne({contract_source_id: func.contract._id, chain_id: String(web3.version.network)});
                 if (deployed) {
                     let contract = web3.eth.contract(func.contract.abi).at(deployed.eth_address);
 
@@ -109,9 +109,6 @@ Template.pipedebugger.helpers({
                         shown_functions: [data.name],
 
                     }
-                    Meteor.call('js_source.getJS', source._id, function(error, result) {
-                        console.log(error, result);
-                    });
                 }
 
                 let indx = contract_function.contract.abi.findIndex(func => func.name == data.name);

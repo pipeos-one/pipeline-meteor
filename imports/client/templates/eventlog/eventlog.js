@@ -7,14 +7,22 @@ Template.eventlog.onCreated(function() {
     self.logs = new ReactiveVar([]);
     self.othercontracts = new ReactiveVar([]);
     self.filters = [];
-
     self.filter = self.contract.allEvents(function(error, log) {
-        if (error) console.error();
-        console.log('log', log);
-        let logs = self.logs.get();
-        log.sourceContractName = self.data.contractName;
-        logs.unshift(log);
-        self.logs.set(logs);
+        if (error) {
+            console.error();
+        }
+        else {
+            console.log('log', log);
+            let logs = self.logs.get();
+            let length = logs.length;
+            console.log('length', length)
+            if (length > 0) console.log(logs[length - 1], log.transactionHash != logs[length - 1].transactionHash)
+            if (length == 0 || log.transactionHash != logs[length - 1].transactionHash) {
+                log.sourceContractName = self.data.contractName;
+                logs.unshift(log);
+                self.logs.set(logs);
+            }
+        }
     });
 
     self.logEvents = () => {
@@ -55,11 +63,13 @@ Template.eventlog.onCreated(function() {
             included_contracts.push(item.name.substring(0, item.name.indexOf('_address')));
         }
     });
-
-    Meteor.call('contracts.getFromNames', included_contracts, function(error, result) {
+    console.log('getFromNames', included_contracts, String(web3.version.network))
+    Meteor.call('contracts.getFromNames', included_contracts, String(web3.version.network), function(error, result) {
         if (error) console.log(error);
         self.stopEvents();
-        self.othercontracts.set(result);
+        if (result) {
+            self.othercontracts.set(result);
+        }
     });
 });
 

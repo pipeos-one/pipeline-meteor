@@ -57,7 +57,7 @@ Template.pipecodepreview.events({
 
         addresses = inputs.map(function(name) {
             let _id = Pipeline.collections.ContractSource.findOne({name})._id;
-            return Pipeline.collections.DeployedContract.findOne({contract_source_id: _id}).eth_address;
+            return Pipeline.collections.DeployedContract.findOne({contract_source_id: _id, chain_id: String(web3.version.network)}).eth_address;
         });
 
         addresses.unshift(Pipeline.contracts.PipelineProxy[
@@ -75,7 +75,7 @@ Template.pipecodepreview.events({
             let sender = web3.eth.accounts[0];
 
             web3.eth.estimateGas({data: compiled.bytecode}, function(error, result) {
-                let gasEstimate = result + 500000;
+                let gasEstimate = result || 1500000 + 500000;
 
                 console.log('estimateGas', result, gasEstimate, sender);
                 var myContractReturned = PipedContract.new(...addresses, {
