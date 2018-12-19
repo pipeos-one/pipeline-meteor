@@ -1,5 +1,8 @@
 # Pipeline
 
+!Outdated by https://github.com/pipeos-one/pipeos-client and https://github.com/pipeos-one/pipeos-server
+
+
 Pipeline is a visual IDE for for composing Solidity smart contracts using functions from already deployed contracts.
 This is currently an in-work prototype. Future plans coming soon.
 
