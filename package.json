@@ -14,7 +14,7 @@
     "bootstrap-treeview": "^1.2.0",
     "dagre": "^0.8.2",
     "graphlib": "^2.1.5",
-    "jquery": "<3.0.0",
+    "jquery": "<4.0.0",
     "meteor-node-stubs": "^0.4.1",
     "simpl-schema": "^1.5.3",
     "solc": "^0.4.24",
