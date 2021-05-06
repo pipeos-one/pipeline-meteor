@@ -19,7 +19,7 @@
     "simpl-schema": "^1.5.3",
     "solc": "^0.4.24",
     "swiper": "^4.3.5",
-    "underscore": "^1.9.1"
+    "underscore": "^1.12.1"
   },
   "meteor": {
     "mainModule": {
