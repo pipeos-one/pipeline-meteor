@@ -18,7 +18,7 @@
     "meteor-node-stubs": "^0.4.1",
     "simpl-schema": "^1.5.3",
     "solc": "^0.4.24",
-    "swiper": "^4.3.5",
+    "swiper": "^6.5.1",
     "underscore": "^1.9.1"
   },
   "meteor": {
